@@ -46,5 +46,5 @@ async def on_message(message):
     if message.content.startswith("active"):
         await message.channel.send(", ".join(lib.get_active_user()))
 
-client.run(TOKEN)r
+client.run(TOKEN)
 
