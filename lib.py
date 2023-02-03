@@ -1,20 +1,16 @@
-import re
+impot re
 
-def get_logged_in_user(log):
+def get_logged_in_user():
+    file_path = "../mc/nohup.out"
     regex = r"\[\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\]"
-    with open(log, "r") as f:
+    with open(file_path, "r") as f:
         return [re.sub(regex, "", (line.split(" ")[4])) for line in f if "logged in with entity" in line]
 
-def get_logged_out_user(log):
-    regex = r"\[\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{1,5}\]"
-    with open(log, "r") as f:
-        return [re.sub(regex, "", (line.split(" ")[4])) for line in f if "lost connection" in line]
-
-def main():
+def get_logged_out_user():
     file_path = "../mc/nohup.out"
-    logged_in_user = get_logged_in_user(file_path)
-    print(logged_in_user)
+    with open(file_path, "r") as f:
+        return [line.split(" ")[4] for line in f if "left the game" in line]
 
-if __name__ == "__main__":
-    main()
+def get_active_user():
+    return [user for user in get_logged_in_user() if user not in get_logged_out_user()]
 
