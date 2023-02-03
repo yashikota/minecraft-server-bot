@@ -1,4 +1,4 @@
-impot lib
+import lib
 import discord
 from discord.ext import tasks
 from dotenv import load_dotenv
