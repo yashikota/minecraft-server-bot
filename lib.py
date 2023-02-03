@@ -1,4 +1,4 @@
-impot re
+import re
 
 def get_logged_in_user():
     file_path = "../mc/nohup.out"
