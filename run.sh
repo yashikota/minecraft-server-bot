@@ -1,2 +1,2 @@
 rm -f nohup.out
-nohup python3 main.py &r
+nohup python3 main.py &

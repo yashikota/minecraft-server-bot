@@ -1,3 +1,4 @@
+import asyncio
 import lib
 import discord
 from discord.ext import tasks
@@ -13,24 +14,30 @@ load_dotenv()
 TOKEN = os.getenv("TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
 
-@tasks.loop(seconds=5)
-async def check_active_user(active_user):
-    channel = client.get_channel(CHANNEL_ID)
-    if active_user != lib.get_active_user():
-        active_user = lib.get_active_user()
 
-        if len(active_user) > len(lib.get_logged_in_user()):
-            await channel.send(f"{', '.join(active_user)} がログインしました")
+@tasks.loop(seconds=5)
+async def check_active_user():
+    channel = client.get_channel(int(CHANNEL_ID))
+    previous_active_user = lib.get_active_user()
+    await asyncio.sleep(5)
+    now_active_user = lib.get_active_user()
+
+    if previous_active_user != now_active_user:
+        if len(previous_active_user) < len(now_active_user):
+            await channel.send(f"{lib.get_logged_in_user()[-1]} がログインしました")
         else:
-            await channel.send(f"{', '.join(active_user)} がログアウトしました")
-        await channel.send(f"現在プレイしているのは {', '.join(active_user)}")
+            await channel.send(f"{lib.get_logged_out_user()[-1]} がログアウトしました")
+        if len(now_active_user) == 0:
+            await channel.send("サーバーに誰もいません")
+        else:
+            await channel.send(f"現在プレイしているのは {', '.join(now_active_user)} です")
 
 
 @client.event
 async def on_ready():
     print(f"We have logged in as {client.user}")
-    active_user = lib.get_active_user()
-    check_active_user.start(active_user)
+    check_active_user.start()
+
 
 @client.event
 async def on_message(message):
@@ -44,7 +51,9 @@ async def on_message(message):
         await message.channel.send(", ".join(lib.get_logged_out_user()))
 
     if message.content.startswith("active"):
-        await message.channel.send(", ".join(lib.get_active_user()))
+        if len(user := lib.get_active_user()) == 0:
+            await message.channel.send("サーバーに誰もいません")
+        else:
+            await message.channel.send(f"現在プレイしているのは {', '.join(user)} です")
 
 client.run(TOKEN)
-
