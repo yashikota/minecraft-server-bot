@@ -1,4 +1,6 @@
 import re
+from collections import Counter
+
 
 def get_logged_in_user():
     file_path = "../mc/nohup.out"
@@ -6,11 +8,12 @@ def get_logged_in_user():
     with open(file_path, "r") as f:
         return [re.sub(regex, "", (line.split(" ")[4])) for line in f if "logged in with entity" in line]
 
+
 def get_logged_out_user():
     file_path = "../mc/nohup.out"
     with open(file_path, "r") as f:
         return [line.split(" ")[4] for line in f if "left the game" in line]
 
-def get_active_user():
-    return [user for user in get_logged_in_user() if user not in get_logged_out_user()]
 
+def get_active_user():
+    return list(Counter(get_logged_in_user()) - Counter(get_logged_out_user()))
